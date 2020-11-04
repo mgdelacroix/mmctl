@@ -62,6 +62,13 @@ func (s *MmctlE2ETestSuite) SetupEnterpriseTestHelper() *api4.TestHelper {
 	return s.th
 }
 
+// RunForSystemAdminAndLocal runs a test function for client
+func (s *MmctlE2ETestSuite) RunForClient(testName string, fn func(client.Client)) {
+	s.Run(testName+"/Client", func() {
+		fn(s.th.SystemAdminClient)
+	})
+}
+
 // RunForSystemAdminAndLocal runs a test function for both SystemAdmin
 // and Local clients. Several commands work in the same way when used
 // by a fully privileged user and through the local mode, so this
