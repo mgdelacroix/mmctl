@@ -5,6 +5,7 @@ go 1.13
 require (
 	github.com/go-gorp/gorp v2.2.0+incompatible // indirect
 	github.com/golang/mock v1.3.1
+	github.com/icrowley/fake v0.0.0-20180203215853-4178557ae428
 	github.com/magefile/mage v1.9.0
 	github.com/magiconair/properties v1.8.4 // indirect
 	github.com/mattermost/gorp v2.0.1-0.20200527092429-d62b7b9cadfc+incompatible // indirect
