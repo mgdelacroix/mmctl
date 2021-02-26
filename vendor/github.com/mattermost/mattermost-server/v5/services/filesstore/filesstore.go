@@ -5,9 +5,14 @@ package filesstore
 
 import (
 	"io"
-	"net/http"
+	"time"
 
-	"github.com/mattermost/mattermost-server/v5/model"
+	"github.com/pkg/errors"
+)
+
+const (
+	driverS3    = "amazons3"
+	driverLocal = "local"
 )
 
 type ReadCloseSeeker interface {
@@ -16,34 +21,63 @@ type ReadCloseSeeker interface {
 }
 
 type FileBackend interface {
-	TestConnection() *model.AppError
+	TestConnection() error
 
-	Reader(path string) (ReadCloseSeeker, *model.AppError)
-	ReadFile(path string) ([]byte, *model.AppError)
-	FileExists(path string) (bool, *model.AppError)
-	FileSize(path string) (int64, *model.AppError)
-	CopyFile(oldPath, newPath string) *model.AppError
-	MoveFile(oldPath, newPath string) *model.AppError
-	WriteFile(fr io.Reader, path string) (int64, *model.AppError)
-	AppendFile(fr io.Reader, path string) (int64, *model.AppError)
-	RemoveFile(path string) *model.AppError
+	Reader(path string) (ReadCloseSeeker, error)
+	ReadFile(path string) ([]byte, error)
+	FileExists(path string) (bool, error)
+	FileSize(path string) (int64, error)
+	CopyFile(oldPath, newPath string) error
+	MoveFile(oldPath, newPath string) error
+	WriteFile(fr io.Reader, path string) (int64, error)
+	AppendFile(fr io.Reader, path string) (int64, error)
+	RemoveFile(path string) error
+	FileModTime(path string) (time.Time, error)
 
-	ListDirectory(path string) (*[]string, *model.AppError)
-	RemoveDirectory(path string) *model.AppError
+	ListDirectory(path string) ([]string, error)
+	RemoveDirectory(path string) error
 }
 
-func NewFileBackend(settings *model.FileSettings, enableComplianceFeatures bool) (FileBackend, *model.AppError) {
-	switch *settings.DriverName {
-	case model.IMAGE_DRIVER_S3:
-		backend, err := NewS3FileBackend(settings, enableComplianceFeatures)
+type FileBackendSettings struct {
+	DriverName              string
+	Directory               string
+	AmazonS3AccessKeyId     string
+	AmazonS3SecretAccessKey string
+	AmazonS3Bucket          string
+	AmazonS3PathPrefix      string
+	AmazonS3Region          string
+	AmazonS3Endpoint        string
+	AmazonS3SSL             bool
+	AmazonS3SignV2          bool
+	AmazonS3SSE             bool
+	AmazonS3Trace           bool
+}
+
+func (settings *FileBackendSettings) CheckMandatoryS3Fields() error {
+	if settings.AmazonS3Bucket == "" {
+		return errors.New("missing s3 bucket settings")
+	}
+
+	// if S3 endpoint is not set call the set defaults to set that
+	if settings.AmazonS3Endpoint == "" {
+		settings.AmazonS3Endpoint = "s3.amazonaws.com"
+	}
+
+	return nil
+}
+
+func NewFileBackend(settings FileBackendSettings) (FileBackend, error) {
+	switch settings.DriverName {
+	case driverS3:
+		backend, err := NewS3FileBackend(settings)
 		if err != nil {
-			return nil, model.NewAppError("NewFileBackend", "api.file.new_backend.s3.app_error", nil, err.Error(), http.StatusInternalServerError)
+			return nil, errors.Wrap(err, "unable to connect to the s3 backend")
 		}
 		return backend, nil
-	case model.IMAGE_DRIVER_LOCAL:
+	case driverLocal:
 		return &LocalFileBackend{
-			directory: *settings.Directory,
+			directory: settings.Directory,
 		}, nil
 	}
-	return nil, model.NewAppError("NewFileBackend", "api.file.no_driver.app_error", nil, "", http.StatusInternalServerError)
+	return nil, errors.New("no valid filestorage driver found")
 }

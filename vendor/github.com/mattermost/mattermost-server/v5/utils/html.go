@@ -15,6 +15,7 @@ import (
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/mattermost/go-i18n/i18n"
+
 	"github.com/mattermost/mattermost-server/v5/mlog"
 	"github.com/mattermost/mattermost-server/v5/utils/fileutils"
 )
@@ -43,11 +44,11 @@ func NewHTMLTemplateWatcher(directory string) (*HTMLTemplateWatcher, error) {
 		return nil, err
 	}
 
-	if htmlTemplates, err := template.ParseGlob(filepath.Join(templatesDir, "*.html")); err != nil {
+	htmlTemplates, err := template.ParseGlob(filepath.Join(templatesDir, "*.html"))
+	if err != nil {
 		return nil, err
-	} else {
-		ret.templates.Store(htmlTemplates)
 	}
+	ret.templates.Store(htmlTemplates)
 
 	go func() {
 		defer close(ret.stopped)
@@ -88,7 +89,7 @@ type HTMLTemplate struct {
 	Templates    *template.Template
 	TemplateName string
 	Props        map[string]interface{}
-	Html         map[string]template.HTML
+	HTML         map[string]template.HTML
 }
 
 func NewHTMLTemplate(templates *template.Template, templateName string) *HTMLTemplate {
@@ -96,7 +97,7 @@ func NewHTMLTemplate(templates *template.Template, templateName string) *HTMLTem
 		Templates:    templates,
 		TemplateName: templateName,
 		Props:        make(map[string]interface{}),
-		Html:         make(map[string]template.HTML),
+		HTML:         make(map[string]template.HTML),
 	}
 }
 
@@ -112,21 +113,21 @@ func (t *HTMLTemplate) RenderToWriter(w io.Writer) error {
 	}
 
 	if err := t.Templates.ExecuteTemplate(w, t.TemplateName, t); err != nil {
-		mlog.Error("Error rendering template", mlog.String("template_name", t.TemplateName), mlog.Err(err))
+		mlog.Warn("Error rendering template", mlog.String("template_name", t.TemplateName), mlog.Err(err))
 		return err
 	}
 
 	return nil
 }
 
-func TranslateAsHtml(t i18n.TranslateFunc, translationID string, args map[string]interface{}) template.HTML {
-	message := t(translationID, escapeForHtml(args))
+func TranslateAsHTML(t i18n.TranslateFunc, translationID string, args map[string]interface{}) template.HTML {
+	message := t(translationID, escapeForHTML(args))
 	message = strings.Replace(message, "[[", "<strong>", -1)
 	message = strings.Replace(message, "]]", "</strong>", -1)
 	return template.HTML(message)
 }
 
-func escapeForHtml(arg interface{}) interface{} {
+func escapeForHTML(arg interface{}) interface{} {
 	switch typedArg := arg.(type) {
 	case string:
 		return template.HTMLEscapeString(typedArg)
@@ -135,7 +136,7 @@ func escapeForHtml(arg interface{}) interface{} {
 	case map[string]interface{}:
 		safeArg := make(map[string]interface{}, len(typedArg))
 		for key, value := range typedArg {
-			safeArg[key] = escapeForHtml(value)
+			safeArg[key] = escapeForHTML(value)
 		}
 		return safeArg
 	default:

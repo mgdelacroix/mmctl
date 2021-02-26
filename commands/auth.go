@@ -14,7 +14,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"golang.org/x/crypto/ssh/terminal"
+	"golang.org/x/term"
 
 	"github.com/mattermost/mattermost-server/v5/model"
 
@@ -231,7 +231,7 @@ func getPasswordFromStdin() (string, error) {
 	// syscall.Stdin is of type int in all architectures but in
 	// windows, so we have to cast it to ensure cross compatibility
 	//nolint:unconvert
-	bytePassword, err := terminal.ReadPassword(int(syscall.Stdin))
+	bytePassword, err := term.ReadPassword(int(syscall.Stdin))
 	fmt.Println("")
 	if err != nil {
 		return "", err

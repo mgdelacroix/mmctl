@@ -136,7 +136,7 @@ func postListCmdF(c client.Client, cmd *cobra.Command, args []string) error {
 	showIds, _ := cmd.Flags().GetBool("show-ids")
 	follow, _ := cmd.Flags().GetBool("follow")
 
-	postList, res := c.GetPostsForChannel(channel.Id, 0, number, "")
+	postList, res := c.GetPostsForChannel(channel.Id, 0, number, "", false)
 	if res.Error != nil {
 		return res.Error
 	}

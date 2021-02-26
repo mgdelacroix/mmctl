@@ -42,6 +42,10 @@ func desanitize(actual, target *model.Config) {
 		target.Office365Settings.Secret = actual.Office365Settings.Secret
 	}
 
+	if target.OpenIdSettings.Secret != nil && *target.OpenIdSettings.Secret == model.FAKE_SETTING {
+		target.OpenIdSettings.Secret = actual.OpenIdSettings.Secret
+	}
+
 	if *target.SqlSettings.DataSource == model.FAKE_SETTING {
 		*target.SqlSettings.DataSource = *actual.SqlSettings.DataSource
 	}
@@ -82,29 +86,21 @@ func desanitize(actual, target *model.Config) {
 	}
 }
 
-// fixConfig patches invalid or missing data in the configuration, returning true if changed.
-func fixConfig(cfg *model.Config) bool {
-	changed := false
-
+// fixConfig patches invalid or missing data in the configuration.
+func fixConfig(cfg *model.Config) {
 	// Ensure SiteURL has no trailing slash.
 	if strings.HasSuffix(*cfg.ServiceSettings.SiteURL, "/") {
 		*cfg.ServiceSettings.SiteURL = strings.TrimRight(*cfg.ServiceSettings.SiteURL, "/")
-		changed = true
 	}
 
 	// Ensure the directory for a local file store has a trailing slash.
 	if *cfg.FileSettings.DriverName == model.IMAGE_DRIVER_LOCAL {
 		if *cfg.FileSettings.Directory != "" && !strings.HasSuffix(*cfg.FileSettings.Directory, "/") {
 			*cfg.FileSettings.Directory += "/"
-			changed = true
 		}
 	}
 
-	if FixInvalidLocales(cfg) {
-		changed = true
-	}
-
-	return changed
+	FixInvalidLocales(cfg)
 }
 
 // FixInvalidLocales checks and corrects the given config for invalid locale-related settings.
@@ -127,7 +123,7 @@ func FixInvalidLocales(cfg *model.Config) bool {
 		changed = true
 	}
 
-	if len(*cfg.LocalizationSettings.AvailableLocales) > 0 {
+	if *cfg.LocalizationSettings.AvailableLocales != "" {
 		isDefaultClientLocaleInAvailableLocales := false
 		for _, word := range strings.Split(*cfg.LocalizationSettings.AvailableLocales, ",") {
 			if _, ok := locales[word]; !ok {
@@ -167,6 +163,10 @@ func Merge(cfg *model.Config, patch *model.Config, mergeConfig *utils.MergeConfi
 
 	retCfg := ret.(model.Config)
 	return &retCfg, nil
+}
+
+func IsDatabaseDSN(dsn string) bool {
+	return strings.HasPrefix(dsn, "mysql://") || strings.HasPrefix(dsn, "postgres://")
 }
 
 // stripPassword remove the password from a given DSN

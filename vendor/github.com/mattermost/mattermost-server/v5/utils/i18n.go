@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/mattermost/go-i18n/i18n"
+
 	"github.com/mattermost/mattermost-server/v5/mlog"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/utils/fileutils"
@@ -74,7 +75,7 @@ func InitTranslationsWithDir(dir string) error {
 func GetTranslationsBySystemLocale() (i18n.TranslateFunc, error) {
 	locale := *settings.DefaultServerLocale
 	if _, ok := locales[locale]; !ok {
-		mlog.Error("Failed to load system translations for", mlog.String("locale", locale), mlog.String("attempting to fall back to default locale", model.DEFAULT_LOCALE))
+		mlog.Warn("Failed to load system translations for", mlog.String("locale", locale), mlog.String("attempting to fall back to default locale", model.DEFAULT_LOCALE))
 		locale = model.DEFAULT_LOCALE
 	}
 
@@ -100,7 +101,7 @@ func GetUserTranslations(locale string) i18n.TranslateFunc {
 	return translations
 }
 
-func GetTranslationsAndLocale(w http.ResponseWriter, r *http.Request) (i18n.TranslateFunc, string) {
+func GetTranslationsAndLocale(r *http.Request) (i18n.TranslateFunc, string) {
 	// This is for checking against locales like pt_BR or zn_CN
 	headerLocaleFull := strings.Split(r.Header.Get("Accept-Language"), ",")[0]
 	// This is for checking against locales like en, es

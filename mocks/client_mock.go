@@ -926,18 +926,18 @@ func (mr *MockClientMockRecorder) GetPost(arg0, arg1 interface{}) *gomock.Call {
 }
 
 // GetPostsForChannel mocks base method
-func (m *MockClient) GetPostsForChannel(arg0 string, arg1, arg2 int, arg3 string) (*model.PostList, *model.Response) {
+func (m *MockClient) GetPostsForChannel(arg0 string, arg1, arg2 int, arg3 string, arg4 bool) (*model.PostList, *model.Response) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetPostsForChannel", arg0, arg1, arg2, arg3)
+	ret := m.ctrl.Call(m, "GetPostsForChannel", arg0, arg1, arg2, arg3, arg4)
 	ret0, _ := ret[0].(*model.PostList)
 	ret1, _ := ret[1].(*model.Response)
 	return ret0, ret1
 }
 
 // GetPostsForChannel indicates an expected call of GetPostsForChannel
-func (mr *MockClientMockRecorder) GetPostsForChannel(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+func (mr *MockClientMockRecorder) GetPostsForChannel(arg0, arg1, arg2, arg3, arg4 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPostsForChannel", reflect.TypeOf((*MockClient)(nil).GetPostsForChannel), arg0, arg1, arg2, arg3)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPostsForChannel", reflect.TypeOf((*MockClient)(nil).GetPostsForChannel), arg0, arg1, arg2, arg3, arg4)
 }
 
 // GetPostsRoute mocks base method
