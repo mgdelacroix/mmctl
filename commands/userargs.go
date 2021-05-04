@@ -4,9 +4,11 @@
 package commands
 
 import (
+	"errors"
 	"net/url"
 	"strings"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/mattermost/mattermost-server/v5/model"
 
 	"github.com/mattermost/mmctl/client"
@@ -50,4 +52,68 @@ func checkSlash(arg string) bool {
 func checkDots(arg string) bool {
 	unescapedArg, _ := url.PathUnescape(arg)
 	return strings.Contains(unescapedArg, "..")
+}
+
+// getUsersFromArgs obtains all the users passed by `userArgs` parameter.
+// It can return users and errors at the same time
+func getUsersFromArgs(c client.Client, userArgs []string) ([]*model.User, error) {
+	users := make([]*model.User, 0, len(userArgs))
+	var result *multierror.Error
+	for _, userArg := range userArgs {
+		user, err := getUserFromArg(c, userArg)
+		if err != nil {
+			result = multierror.Append(result, err)
+			continue
+		}
+		users = append(users, user)
+	}
+	return users, result.ErrorOrNil()
+}
+
+func getUserFromArg(c client.Client, userArg string) (*model.User, error) {
+	var user *model.User
+	var response *model.Response
+	if !checkDots(userArg) {
+		user, response = c.GetUserByEmail(userArg, "")
+		if response != nil && response.Error != nil {
+			err := ExtractErrorFromResponse(response)
+			var nfErr *NotFoundError
+			var badRequestErr *BadRequestError
+			if !errors.As(err, &nfErr) && !errors.As(err, &badRequestErr) {
+				return nil, err
+			}
+		}
+	}
+
+	if !checkSlash(userArg) {
+		if user == nil {
+			user, response = c.GetUserByUsername(userArg, "")
+			if response != nil && response.Error != nil {
+				err := ExtractErrorFromResponse(response)
+				var nfErr *NotFoundError
+				var badRequestErr *BadRequestError
+				if !errors.As(err, &nfErr) && !errors.As(err, &badRequestErr) {
+					return nil, err
+				}
+			}
+		}
+
+		if user == nil {
+			user, response = c.GetUser(userArg, "")
+			if response != nil && response.Error != nil {
+				err := ExtractErrorFromResponse(response)
+				var nfErr *NotFoundError
+				var badRequestErr *BadRequestError
+				if !errors.As(err, &nfErr) && !errors.As(err, &badRequestErr) {
+					return nil, err
+				}
+			}
+		}
+	}
+
+	if user == nil {
+		return nil, ErrEntityNotFound{Type: "user", ID: userArg}
+	}
+
+	return user, nil
 }

@@ -41,10 +41,12 @@ SEE ALSO
 * `mmctl user deactivate <mmctl_user_deactivate.rst>`_ 	 - Deactivate users
 * `mmctl user delete <mmctl_user_delete.rst>`_ 	 - Delete users
 * `mmctl user deleteall <mmctl_user_deleteall.rst>`_ 	 - Delete all users and all posts. Local command only.
+* `mmctl user demote <mmctl_user_demote.rst>`_ 	 - Demote users to guests
 * `mmctl user email <mmctl_user_email.rst>`_ 	 - Change email of the user
 * `mmctl user invite <mmctl_user_invite.rst>`_ 	 - Send user an email invite to a team.
 * `mmctl user list <mmctl_user_list.rst>`_ 	 - List users
 * `mmctl user migrate_auth <mmctl_user_migrate_auth.rst>`_ 	 - Mass migrate user accounts authentication type
+* `mmctl user promote <mmctl_user_promote.rst>`_ 	 - Promote guests to users
 * `mmctl user reset_password <mmctl_user_reset_password.rst>`_ 	 - Send users an email to reset their password
 * `mmctl user resetmfa <mmctl_user_resetmfa.rst>`_ 	 - Turn off MFA
 * `mmctl user search <mmctl_user_search.rst>`_ 	 - Search for users

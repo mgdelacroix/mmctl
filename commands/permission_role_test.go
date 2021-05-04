@@ -433,7 +433,7 @@ Name          example-role-name
 DisplayName                         
 BuiltIn       false                 
 SchemeManaged false                 
-Permissions   edit_brand            sysconsole_write_site
+Permissions   edit_brand            
               sysconsole_write_site 
 `, printer.GetLines()[0])
 	})

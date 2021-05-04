@@ -96,7 +96,7 @@ Private channels the user is a member of or has access to are appended with ' (p
 var ModifyChannelCmd = &cobra.Command{
 	Use:   "modify [channel] [flags]",
 	Short: "Modify a channel's public/private type",
-	Long: `Change the public/private type of a channel.
+	Long: `Change the Public/Private type of a channel.
 Channel can be specified by [team]:[channel]. ie. myteam:mychannel or by channel ID.`,
 	Example: `  channel modify myteam:mychannel --private
   channel modify channelId --public`,
@@ -129,7 +129,7 @@ Channels can be specified by [team]:[channel]. ie. myteam:mychannel or by channe
 var MakeChannelPrivateCmd = &cobra.Command{
 	Use:   "make_private [channel]",
 	Short: "Set a channel's type to private",
-	Long: `Set the type of a channel from public to private.
+	Long: `Set the type of a channel from Public to Private.
 Channel can be specified by [team]:[channel]. ie. myteam:mychannel or by channel ID.`,
 	Example: "  channel make_private myteam:mychannel",
 	PreRun:  disableLocalPrecheck,

@@ -9,7 +9,7 @@ Synopsis
 ~~~~~~~~
 
 
-Set the type of a channel from public to private.
+Set the type of a channel from Public to Private.
 Channel can be specified by [team]:[channel]. ie. myteam:mychannel or by channel ID.
 
 ::

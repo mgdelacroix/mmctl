@@ -20,8 +20,8 @@ import (
 	"github.com/throttled/throttled/store/memstore"
 
 	"github.com/mattermost/mattermost-server/v5/model"
-	"github.com/mattermost/mattermost-server/v5/services/mailservice"
 	"github.com/mattermost/mattermost-server/v5/shared/i18n"
+	"github.com/mattermost/mattermost-server/v5/shared/mail"
 	"github.com/mattermost/mattermost-server/v5/shared/mlog"
 	"github.com/mattermost/mattermost-server/v5/shared/templates"
 )
@@ -295,7 +295,7 @@ func (es *EmailService) SendCloudWelcomeEmail(userEmail, locale, teamInviteID, w
 	T := i18n.GetUserTranslations(locale)
 	subject := T("api.templates.cloud_welcome_email.subject")
 
-	workSpacePath := fmt.Sprintf("https://%s.cloud.mattermost.com", workSpaceName)
+	workSpacePath := fmt.Sprintf("https://%s", dns)
 
 	data := es.newEmailTemplateData(locale)
 	data.Props["Title"] = T("api.templates.cloud_welcome_email.title", map[string]interface{}{"WorkSpace": workSpaceName})
@@ -699,14 +699,14 @@ func (es *EmailService) sendMailWithCC(to, subject, htmlBody string, ccMail stri
 	license := es.srv.License()
 	mailConfig := es.srv.MailServiceConfig()
 
-	return mailservice.SendMailUsingConfig(to, subject, htmlBody, mailConfig, license != nil && *license.Features.Compliance, ccMail)
+	return mail.SendMailUsingConfig(to, subject, htmlBody, mailConfig, license != nil && *license.Features.Compliance, ccMail)
 }
 
 func (es *EmailService) sendMailWithEmbeddedFiles(to, subject, htmlBody string, embeddedFiles map[string]io.Reader) error {
 	license := es.srv.License()
 	mailConfig := es.srv.MailServiceConfig()
 
-	return mailservice.SendMailWithEmbeddedFilesUsingConfig(to, subject, htmlBody, embeddedFiles, mailConfig, license != nil && *license.Features.Compliance, "")
+	return mail.SendMailWithEmbeddedFilesUsingConfig(to, subject, htmlBody, embeddedFiles, mailConfig, license != nil && *license.Features.Compliance, "")
 }
 
 func (es *EmailService) CreateVerifyEmailToken(userID string, newEmail string) (*model.Token, *model.AppError) {

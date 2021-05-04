@@ -30,6 +30,7 @@ Options
       --description string    Optional. The description text for the new bot.
       --display-name string   Optional. The display name for the new bot.
   -h, --help                  help for create
+      --with-token            Optional. Auto genreate access token for the bot.
 
 Options inherited from parent commands
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

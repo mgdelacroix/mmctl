@@ -8,6 +8,7 @@ import (
 	"sort"
 
 	"github.com/mattermost/mattermost-server/v5/api4"
+	"github.com/mattermost/mattermost-server/v5/app"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/spf13/cobra"
 
@@ -442,7 +443,7 @@ func (s *MmctlE2ETestSuite) TestChannelRenameCmd() {
 	s.Run("Rename channel with permission", func() {
 		printer.Clean()
 
-		_, appErr := s.th.App.AddChannelMember(s.th.BasicUser.Id, channel, "", "")
+		_, appErr := s.th.App.AddChannelMember(s.th.BasicUser.Id, channel, app.ChannelMemberOpts{})
 		s.Require().Nil(appErr)
 
 		newChannelName := api4.GenerateTestChannelName()

@@ -76,6 +76,8 @@ type Client interface {
 	GetUserAccessTokensForUser(userId string, page, perPage int) ([]*model.UserAccessToken, *model.Response)
 	ConvertUserToBot(userId string) (*model.Bot, *model.Response)
 	ConvertBotToUser(userId string, userPatch *model.UserPatch, setSystemAdmin bool) (*model.User, *model.Response)
+	PromoteGuestToUser(userId string) (bool, *model.Response)
+	DemoteUserToGuest(guestId string) (bool, *model.Response)
 	CreateCommand(cmd *model.Command) (*model.Command, *model.Response)
 	ListCommands(teamId string, customOnly bool) ([]*model.Command, *model.Response)
 	GetCommandById(cmdId string) (*model.Command, *model.Response)
@@ -141,4 +143,5 @@ type Client interface {
 	ListExports() ([]string, *model.Response)
 	DeleteExport(name string) (bool, *model.Response)
 	DownloadExport(name string, wr io.Writer, offset int64) (int64, *model.Response)
+	ResetSamlAuthDataToEmail(includeDeleted bool, dryRun bool, userIDs []string) (int64, *model.Response)
 }

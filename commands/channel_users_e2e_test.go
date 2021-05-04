@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	"github.com/mattermost/mattermost-server/v5/api4"
+	"github.com/mattermost/mattermost-server/v5/app"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/spf13/cobra"
 
@@ -20,7 +21,7 @@ func (s *MmctlE2ETestSuite) TestChannelUsersAddCmdF() {
 	user, appErr := s.th.App.CreateUser(&model.User{Email: s.th.GenerateTestEmail(), Username: model.NewId(), Password: model.NewId()})
 	s.Require().Nil(appErr)
 
-	_, appErr = s.th.App.AddUserToTeam(s.th.BasicTeam.Id, user.Id, "")
+	_, _, appErr = s.th.App.AddUserToTeam(s.th.BasicTeam.Id, user.Id, "")
 	s.Require().Nil(appErr)
 
 	channelName := api4.GenerateTestChannelName()
@@ -46,7 +47,7 @@ func (s *MmctlE2ETestSuite) TestChannelUsersAddCmdF() {
 	s.Run("Add user to nonexistent channel/Client", func() {
 		printer.Clean()
 
-		_, appErr := s.th.App.AddChannelMember(s.th.BasicUser.Id, channel, "", "")
+		_, appErr := s.th.App.AddChannelMember(s.th.BasicUser.Id, channel, app.ChannelMemberOpts{})
 		s.Require().Nil(appErr)
 		defer func() {
 			appErr := s.th.App.RemoveUserFromChannel(s.th.BasicUser.Id, s.th.SystemAdminUser.Id, channel)
@@ -75,7 +76,7 @@ func (s *MmctlE2ETestSuite) TestChannelUsersAddCmdF() {
 	s.Run("Add nonexistent user to channel/Client", func() {
 		printer.Clean()
 
-		_, appErr := s.th.App.AddChannelMember(s.th.BasicUser.Id, channel, "", "")
+		_, appErr := s.th.App.AddChannelMember(s.th.BasicUser.Id, channel, app.ChannelMemberOpts{})
 		s.Require().Nil(appErr)
 		defer func() {
 			appErr := s.th.App.RemoveUserFromChannel(s.th.BasicUser.Id, s.th.SystemAdminUser.Id, channel)
@@ -103,7 +104,7 @@ func (s *MmctlE2ETestSuite) TestChannelUsersAddCmdF() {
 	s.Run("Add user to channel/Client", func() {
 		printer.Clean()
 
-		_, appErr := s.th.App.AddChannelMember(s.th.BasicUser.Id, channel, "", "")
+		_, appErr := s.th.App.AddChannelMember(s.th.BasicUser.Id, channel, app.ChannelMemberOpts{})
 		s.Require().Nil(appErr)
 		defer func() {
 			appErr = s.th.App.RemoveUserFromChannel(s.th.BasicUser.Id, s.th.SystemAdminUser.Id, channel)
@@ -150,7 +151,7 @@ func (s *MmctlE2ETestSuite) TestChannelUsersRemoveCmd() {
 	user, appErr := s.th.App.CreateUser(&model.User{Email: s.th.GenerateTestEmail(), Username: model.NewId(), Password: model.NewId()})
 	s.Require().Nil(appErr)
 
-	_, appErr = s.th.App.AddUserToTeam(s.th.BasicTeam.Id, user.Id, "")
+	_, _, appErr = s.th.App.AddUserToTeam(s.th.BasicTeam.Id, user.Id, "")
 	s.Require().Nil(appErr)
 
 	channelName := api4.GenerateTestChannelName()
@@ -176,7 +177,7 @@ func (s *MmctlE2ETestSuite) TestChannelUsersRemoveCmd() {
 	s.Run("Remove user from nonexistent channel/Client", func() {
 		printer.Clean()
 
-		_, appErr = s.th.App.AddChannelMember(s.th.BasicUser.Id, channel, "", "")
+		_, appErr = s.th.App.AddChannelMember(s.th.BasicUser.Id, channel, app.ChannelMemberOpts{})
 		s.Require().Nil(appErr)
 		defer func() {
 			appErr = s.th.App.RemoveUserFromChannel(s.th.BasicUser.Id, s.th.SystemAdminUser.Id, channel)
@@ -205,7 +206,7 @@ func (s *MmctlE2ETestSuite) TestChannelUsersRemoveCmd() {
 	s.Run("Remove nonexistent user from channel/Client", func() {
 		printer.Clean()
 
-		_, appErr = s.th.App.AddChannelMember(s.th.BasicUser.Id, channel, "", "")
+		_, appErr = s.th.App.AddChannelMember(s.th.BasicUser.Id, channel, app.ChannelMemberOpts{})
 		s.Require().Nil(appErr)
 		defer func() {
 			appErr = s.th.App.RemoveUserFromChannel(s.th.BasicUser.Id, s.th.SystemAdminUser.Id, channel)
@@ -224,7 +225,7 @@ func (s *MmctlE2ETestSuite) TestChannelUsersRemoveCmd() {
 		printer.Clean()
 
 		var members *model.ChannelMembers
-		_, appErr = s.th.App.AddChannelMember(user.Id, channel, "", "")
+		_, appErr = s.th.App.AddChannelMember(user.Id, channel, app.ChannelMemberOpts{})
 		s.Require().Nil(appErr)
 		members, appErr = s.th.App.GetChannelMembersByIds(channel.Id, []string{user.Id})
 		s.Require().Nil(appErr)
@@ -242,7 +243,7 @@ func (s *MmctlE2ETestSuite) TestChannelUsersRemoveCmd() {
 	s.Run("Remove user from channel/Client", func() {
 		printer.Clean()
 
-		_, appErr = s.th.App.AddChannelMember(s.th.BasicUser.Id, channel, "", "")
+		_, appErr = s.th.App.AddChannelMember(s.th.BasicUser.Id, channel, app.ChannelMemberOpts{})
 		s.Require().Nil(appErr)
 		defer func() {
 			appErr = s.th.App.RemoveUserFromChannel(s.th.BasicUser.Id, s.th.SystemAdminUser.Id, channel)
@@ -250,7 +251,7 @@ func (s *MmctlE2ETestSuite) TestChannelUsersRemoveCmd() {
 		}()
 
 		var members *model.ChannelMembers
-		_, appErr = s.th.App.AddChannelMember(user.Id, channel, "", "")
+		_, appErr = s.th.App.AddChannelMember(user.Id, channel, app.ChannelMemberOpts{})
 		s.Require().Nil(appErr)
 		members, appErr = s.th.App.GetChannelMembersByIds(channel.Id, []string{user.Id})
 		s.Require().Nil(appErr)
@@ -270,7 +271,7 @@ func (s *MmctlE2ETestSuite) TestChannelUsersRemoveCmd() {
 	s.RunForSystemAdminAndLocal("Remove user from channel", func(c client.Client) {
 		printer.Clean()
 
-		_, appErr = s.th.App.AddChannelMember(user.Id, channel, "", "")
+		_, appErr = s.th.App.AddChannelMember(user.Id, channel, app.ChannelMemberOpts{})
 		s.Require().Nil(appErr)
 		members, appErr := s.th.App.GetChannelMembersByIds(channel.Id, []string{user.Id})
 		s.Require().Nil(appErr)

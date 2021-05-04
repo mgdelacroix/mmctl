@@ -393,3 +393,42 @@ func (s *MmctlE2ETestSuite) TestBotAssignCmdF() {
 		s.Require().EqualError(err, fmt.Sprintf(`can not assign bot '%s' to user '%s'`, bot.UserId, newBotOwner.Id), err.Error())
 	})
 }
+
+func (s *MmctlE2ETestSuite) TestBotCreateCmdF() {
+	s.SetupTestHelper().InitBasic()
+
+	createBots := *s.th.App.Config().ServiceSettings.EnableBotAccountCreation
+	s.th.App.UpdateConfig(func(c *model.Config) { *c.ServiceSettings.EnableBotAccountCreation = true })
+	defer s.th.App.UpdateConfig(func(c *model.Config) { *c.ServiceSettings.EnableBotAccountCreation = createBots })
+
+	s.Run("MM-T3941 Create Bot with an access token", func() {
+		printer.Clean()
+
+		cmd := &cobra.Command{}
+		cmd.Flags().Bool("with-token", true, "")
+
+		err := botCreateCmdF(s.th.Client, cmd, []string{"testbot"})
+		s.Require().Error(err)
+		s.Require().Empty(printer.GetLines())
+		s.Require().Empty(printer.GetErrorLines())
+
+		printer.Clean()
+
+		err = botCreateCmdF(s.th.SystemAdminClient, cmd, []string{"testbot"})
+		s.Require().NoError(err)
+		s.Require().Equal(2, len(printer.GetLines()))
+		bot, ok := printer.GetLines()[0].(*model.Bot)
+		s.Require().True(ok)
+		defer func() {
+			err := s.th.App.PermanentDeleteBot(bot.UserId)
+			s.Require().Nil(err)
+		}()
+		token, ok := printer.GetLines()[1].(*model.UserAccessToken)
+		s.Require().True(ok)
+		defer func() {
+			err := s.th.App.RevokeUserAccessToken(token)
+			s.Require().Nil(err)
+		}()
+		s.Require().Empty(printer.GetErrorLines())
+	})
+}

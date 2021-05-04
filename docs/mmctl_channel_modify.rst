@@ -9,7 +9,7 @@ Synopsis
 ~~~~~~~~
 
 
-Change the public/private type of a channel.
+Change the Public/Private type of a channel.
 Channel can be specified by [team]:[channel]. ie. myteam:mychannel or by channel ID.
 
 ::

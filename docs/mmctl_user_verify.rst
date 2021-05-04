@@ -9,7 +9,7 @@ Synopsis
 ~~~~~~~~
 
 
-Verify the emails of some users.
+Verify the user's email address.
 
 ::
 

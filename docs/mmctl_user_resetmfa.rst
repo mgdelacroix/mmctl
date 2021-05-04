@@ -10,7 +10,7 @@ Synopsis
 
 
 Turn off multi-factor authentication for a user.
-If MFA enforcement is enabled, the user will be forced to re-enable MFA as soon as they login.
+If MFA enforcement is enabled, the user will be forced to re-enable MFA as soon as they log in.
 
 ::
 

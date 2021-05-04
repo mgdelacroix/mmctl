@@ -44,7 +44,8 @@ SEE ALSO
 * `mmctl permissions <mmctl_permissions.rst>`_ 	 - Management of permissions
 * `mmctl plugin <mmctl_plugin.rst>`_ 	 - Management of plugins
 * `mmctl post <mmctl_post.rst>`_ 	 - Management of posts
-* `mmctl roles <mmctl_roles.rst>`_ 	 - Management of user roles
+* `mmctl roles <mmctl_roles.rst>`_ 	 - Manage user roles
+* `mmctl saml <mmctl_saml.rst>`_ 	 - SAML related utilities
 * `mmctl system <mmctl_system.rst>`_ 	 - System management
 * `mmctl team <mmctl_team.rst>`_ 	 - Management of teams
 * `mmctl token <mmctl_token.rst>`_ 	 - manage users' access tokens

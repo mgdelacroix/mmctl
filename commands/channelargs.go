@@ -4,8 +4,11 @@
 package commands
 
 import (
+	"errors"
+	"fmt"
 	"strings"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/mattermost/mattermost-server/v5/model"
 
 	"github.com/mattermost/mmctl/client"
@@ -55,4 +58,65 @@ func getChannelFromChannelArg(c client.Client, channelArg string) *model.Channel
 	}
 
 	return channel
+}
+
+// getChannelsFromArgs obtains channels by the `channelArgs` parameter. It can return channels and errors
+// at the same time
+//nolint:golint,unused
+func getChannelsFromArgs(c client.Client, channelArgs []string) ([]*model.Channel, error) {
+	var channels []*model.Channel
+	var result *multierror.Error
+	for _, channelArg := range channelArgs {
+		channel, err := getChannelFromArg(c, channelArg)
+		if err != nil {
+			result = multierror.Append(result, err)
+			continue
+		}
+		channels = append(channels, channel)
+	}
+	return channels, result.ErrorOrNil()
+}
+
+//nolint:golint,unused
+func getChannelFromArg(c client.Client, arg string) (*model.Channel, error) {
+	teamArg, channelArg := parseChannelArg(arg)
+	if teamArg == "" && channelArg == "" {
+		return nil, fmt.Errorf("invalid channel argument %q", arg)
+	}
+	if checkDots(channelArg) || checkSlash(channelArg) {
+		return nil, fmt.Errorf(`invalid channel argument. Cannot contain ".." nor "/"`)
+	}
+	var channel *model.Channel
+	var response *model.Response
+	if teamArg != "" {
+		team, err := getTeamFromArg(c, teamArg)
+		if err != nil {
+			return nil, err
+		}
+		channel, response = c.GetChannelByNameIncludeDeleted(channelArg, team.Id, "")
+		if response != nil && response.Error != nil {
+			err = ExtractErrorFromResponse(response)
+			var nfErr *NotFoundError
+			var badRequestErr *BadRequestError
+			if !errors.As(err, &nfErr) && !errors.As(err, &badRequestErr) {
+				return nil, err
+			}
+		}
+	}
+	if channel != nil {
+		return channel, nil
+	}
+	channel, response = c.GetChannel(channelArg, "")
+	if response != nil && response.Error != nil {
+		err := ExtractErrorFromResponse(response)
+		var nfErr *NotFoundError
+		var badRequestErr *BadRequestError
+		if !errors.As(err, &nfErr) && !errors.As(err, &badRequestErr) {
+			return nil, err
+		}
+	}
+	if channel == nil {
+		return nil, ErrEntityNotFound{Type: "channel", ID: arg}
+	}
+	return channel, nil
 }

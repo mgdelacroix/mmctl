@@ -9,7 +9,7 @@ Synopsis
 ~~~~~~~~
 
 
-Convert users to bots, or a bot to a user
+Convert user accounts to bots or convert bots to user accounts.
 
 ::
 

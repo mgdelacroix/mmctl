@@ -40,7 +40,7 @@ func (s *MmctlE2ETestSuite) TestListCommandCmd() {
 		})
 		s.Require().Nil(appErr)
 
-		_, appErr = s.th.App.AddUserToTeam(team.Id, s.th.BasicUser.Id, "")
+		_, _, appErr = s.th.App.AddUserToTeam(team.Id, s.th.BasicUser.Id, "")
 		s.Require().Nil(appErr)
 
 		command, appErr := s.th.App.CreateCommand(&model.Command{
@@ -74,7 +74,7 @@ func (s *MmctlE2ETestSuite) TestListCommandCmd() {
 		})
 		s.Require().Nil(appErr)
 
-		_, appErr = s.th.App.AddUserToTeam(team1.Id, s.th.BasicUser.Id, "")
+		_, _, appErr = s.th.App.AddUserToTeam(team1.Id, s.th.BasicUser.Id, "")
 		s.Require().Nil(appErr)
 
 		command1, appErr := s.th.App.CreateCommand(&model.Command{
@@ -100,7 +100,7 @@ func (s *MmctlE2ETestSuite) TestListCommandCmd() {
 		})
 		s.Require().Nil(appErr)
 
-		_, appErr = s.th.App.AddUserToTeam(team2.Id, s.th.BasicUser.Id, "")
+		_, _, appErr = s.th.App.AddUserToTeam(team2.Id, s.th.BasicUser.Id, "")
 		s.Require().Nil(appErr)
 
 		command2, appErr := s.th.App.CreateCommand(&model.Command{
@@ -172,7 +172,7 @@ func (s *MmctlE2ETestSuite) TestArchiveCommandCmdF() {
 	})
 	s.Require().Nil(appErr)
 
-	_, appErr = s.th.App.AddUserToTeam(teamOfBasicUser.Id, s.th.BasicUser.Id, "")
+	_, _, appErr = s.th.App.AddUserToTeam(teamOfBasicUser.Id, s.th.BasicUser.Id, "")
 	s.Require().Nil(appErr)
 
 	s.RunForAllClients("Archive nonexistent command", func(c client.Client) {

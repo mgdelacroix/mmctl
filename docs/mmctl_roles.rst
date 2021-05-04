@@ -3,13 +3,13 @@
 mmctl roles
 -----------
 
-Management of user roles
+Manage user roles
 
 Synopsis
 ~~~~~~~~
 
 
-Management of user roles
+Manage user roles
 
 Options
 ~~~~~~~

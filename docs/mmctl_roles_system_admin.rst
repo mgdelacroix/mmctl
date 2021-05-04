@@ -9,7 +9,7 @@ Synopsis
 ~~~~~~~~
 
 
-Make some users system admins
+Make some users system admins.
 
 ::
 
@@ -20,7 +20,11 @@ Examples
 
 ::
 
-    roles system_admin user1
+    # You can make one user a sysadmin
+    $ mmctl roles system_admin john_doe
+
+    # Or promote multiple users at the same time
+    $ mmctl roles system_admin john_doe jane_doe
 
 Options
 ~~~~~~~
@@ -44,5 +48,5 @@ Options inherited from parent commands
 SEE ALSO
 ~~~~~~~~
 
-* `mmctl roles <mmctl_roles.rst>`_ 	 - Management of user roles
+* `mmctl roles <mmctl_roles.rst>`_ 	 - Manage user roles
 

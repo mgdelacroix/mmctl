@@ -9,7 +9,7 @@ Synopsis
 ~~~~~~~~
 
 
-Change email of the user.
+Change the email address associated with a user.
 
 ::
 

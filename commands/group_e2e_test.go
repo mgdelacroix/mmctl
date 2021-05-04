@@ -407,10 +407,10 @@ func (s *MmctlE2ETestSuite) TestTeamGroupStatusCmd() {
 		s.Require().Len(printer.GetErrorLines(), 0)
 	})
 
-	_, appErr = s.th.App.AddUserToTeam(team.Id, s.th.BasicUser.Id, s.th.SystemAdminUser.Id)
+	_, _, appErr = s.th.App.AddUserToTeam(team.Id, s.th.BasicUser.Id, s.th.SystemAdminUser.Id)
 	s.Require().Nil(appErr)
 
-	_, appErr = s.th.App.AddUserToTeam(team2.Id, s.th.BasicUser.Id, s.th.SystemAdminUser.Id)
+	_, _, appErr = s.th.App.AddUserToTeam(team2.Id, s.th.BasicUser.Id, s.th.SystemAdminUser.Id)
 	s.Require().Nil(appErr)
 
 	s.RunForAllClients("MM-T3922 Should allow to get status of a group constrained team", func(c client.Client) {

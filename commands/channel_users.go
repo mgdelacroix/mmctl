@@ -92,8 +92,7 @@ func channelUsersRemoveCmdF(c client.Client, cmd *cobra.Command, args []string) 
 	if allUsers {
 		removeAllUsersFromChannel(c, channel)
 	} else {
-		users := getUsersFromUserArgs(c, args[1:])
-		for i, user := range users {
+		for i, user := range getUsersFromUserArgs(c, args[1:]) {
 			removeUserFromChannel(c, channel, user, args[i+1])
 		}
 	}

@@ -37,16 +37,18 @@ Options
 
 ::
 
-      --email string       Required. The email address for the new user account
-      --email_verified     Optional. If supplied, the new user will have the email verified. Defaults to false
-      --firstname string   Optional. The first name for the new user account
-  -h, --help               help for create
-      --lastname string    Optional. The last name for the new user account
-      --locale string      Optional. The locale (ex: en, fr) for the new user account
-      --nickname string    Optional. The nickname for the new user account
-      --password string    Required. The password for the new user account
-      --system_admin       Optional. If supplied, the new user will be a system administrator. Defaults to false
-      --username string    Required. Username for the new user account
+      --disable-welcome-email   Optional. If supplied, the new user will not receive a welcome email. Defaults to false
+      --email string            Required. The email address for the new user account
+      --email_verified          Optional. If supplied, the new user will have the email verified. Defaults to false
+      --firstname string        Optional. The first name for the new user account
+      --guest                   Optional. If supplied, the new user will be a guest. Defaults to false
+  -h, --help                    help for create
+      --lastname string         Optional. The last name for the new user account
+      --locale string           Optional. The locale (ex: en, fr) for the new user account
+      --nickname string         Optional. The nickname for the new user account
+      --password string         Required. The password for the new user account
+      --system_admin            Optional. If supplied, the new user will be a system administrator. Defaults to false
+      --username string         Required. Username for the new user account
 
 Options inherited from parent commands
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

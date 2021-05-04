@@ -18,9 +18,9 @@ import (
 
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/services/cache"
+	"github.com/mattermost/mattermost-server/v5/shared/markdown"
 	"github.com/mattermost/mattermost-server/v5/shared/mlog"
 	"github.com/mattermost/mattermost-server/v5/utils/imgutils"
-	"github.com/mattermost/mattermost-server/v5/utils/markdown"
 )
 
 type linkMetadataCache struct {
@@ -422,12 +422,6 @@ func (a *App) getLinkMetadata(requestURL string, timestamp int64, isNewPost bool
 
 		client := a.HTTPService().MakeClient(false)
 		client.Timeout = time.Duration(*a.Config().ExperimentalSettings.LinkMetadataTimeoutMilliseconds) * time.Millisecond
-		mmTransport := a.HTTPService().MakeTransport(false)
-		client.Transport = mmTransport.Transport
-
-		if strings.HasPrefix(requestURL, "https://twitter.com/") || strings.HasPrefix(requestURL, "https://mobile.twitter.com/") {
-			request.Header.Add("User-Agent", "facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)")
-		}
 
 		var res *http.Response
 		res, err = client.Do(request)

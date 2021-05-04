@@ -20,7 +20,11 @@ Examples
 
 ::
 
-    roles member user1
+    # You can remove admin privileges from one user
+    $ mmctl roles member john_doe
+
+    # Or demote multiple users at the same time
+    $ mmctl roles member john_doe jane_doe
 
 Options
 ~~~~~~~
@@ -44,5 +48,5 @@ Options inherited from parent commands
 SEE ALSO
 ~~~~~~~~
 
-* `mmctl roles <mmctl_roles.rst>`_ 	 - Management of user roles
+* `mmctl roles <mmctl_roles.rst>`_ 	 - Manage user roles
 
