@@ -4,6 +4,8 @@
 package commands
 
 import (
+	"strings"
+
 	"github.com/mattermost/mmctl/client"
 	"github.com/mattermost/mmctl/printer"
 
@@ -25,6 +27,14 @@ var ChannelUsersAddCmd = &cobra.Command{
 	RunE:    withClient(channelUsersAddCmdF),
 }
 
+var ChannelUsersListCmd = &cobra.Command{
+	Use:     "list [channel] [users]",
+	Short:   "List users with access to a private channel",
+	Long:    "List users with access to a private channel",
+	Example: "  channel users list myteam:mychannel",
+	RunE:    withClient(channelUsersListCmdF),
+}
+
 var ChannelUsersRemoveCmd = &cobra.Command{
 	Use:   "remove [channel] [users]",
 	Short: "Remove users from channel",
@@ -36,8 +46,10 @@ var ChannelUsersRemoveCmd = &cobra.Command{
 
 func init() {
 	ChannelUsersRemoveCmd.Flags().Bool("all-users", false, "Remove all users from the indicated channel.")
+	ChannelUsersListCmd.Flags().String("display", "email", "Display the 'username' or 'email' or 'id' of the channel members.")
 
 	ChannelUsersCmd.AddCommand(
+		ChannelUsersListCmd,
 		ChannelUsersAddCmd,
 		ChannelUsersRemoveCmd,
 	)
@@ -121,4 +133,70 @@ func removeAllUsersFromChannel(c client.Client, channel *model.Channel) {
 			printer.PrintError("Unable to remove '" + member.UserId + "' from " + channel.Name + ". Error: " + response.Error.Error())
 		}
 	}
+}
+
+func userIdsOfChannelMembers(c client.Client, channel *model.Channel) ([]string, error) {
+	members, response := c.GetChannelMembers(channel.Id, 0, 10000, "")
+	if response.Error != nil {
+		printer.PrintError("Unable to list the users of " + channel.Name + ". Error: " + response.Error.Error())
+		return nil, response.Error
+	}
+
+	var userIds []string
+	for _, member := range *members {
+		userIds = append(userIds, member.UserId)
+	}
+	return userIds, nil
+}
+
+func channelUsersListCmdF(c client.Client, cmd *cobra.Command, args []string) error {
+	if len(args) < 1 {
+		return errors.New("not enough arguments")
+	}
+
+	channel := getChannelFromChannelArg(c, args[0])
+	if channel == nil {
+		return errors.Errorf("unable to find channel %q", args[0])
+	}
+
+	userIds, err := userIdsOfChannelMembers(c, channel)
+	if err != nil {
+		printer.PrintError("Unable to list the users of " + channel.Name + ". Error: " + err.Error())
+		return err
+	}
+
+	display, _ := cmd.Flags().GetString("display")
+	if display == "" {
+		display = "email"
+	}
+
+	users, response := c.GetUsersByIds(userIds)
+	if response.Error != nil {
+		printer.PrintError("Unable to resolve the users of " + channel.Name + ". Error: " + response.Error.Error())
+		return response.Error
+	}
+
+	var displayed []string
+	if display == "username" {
+		for _, user := range users {
+			if user.DeleteAt == 0 {
+				displayed = append(displayed, user.Username)
+			}
+		}
+	} else if display == "id" {
+		for _, user := range users {
+			if user.DeleteAt == 0 {
+				displayed = append(displayed, user.Id)
+			}
+		}
+	} else {
+		for _, user := range users {
+			if user.DeleteAt == 0 {
+				displayed = append(displayed, user.Email)
+			}
+		}
+	}
+
+	printer.Print(strings.Join(displayed, " "))
+	return nil
 }
