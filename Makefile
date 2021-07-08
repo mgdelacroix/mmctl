@@ -4,9 +4,12 @@ BUILD_HASH ?= $(shell git rev-parse HEAD)
 BUILD_VERSION ?= $(shell git ls-remote --tags --refs git://github.com/mattermost/mmctl | tail -n1 | sed 's/.*\///')
 # Needed to avoid install shadow in brew which is not permitted
 ADVANCED_VET ?= TRUE
+ENTERPRISE_DIR ?= ${MM_SERVER_PATH}/../enterprise
+VENDOR_MM_SERVER_DIR ?= vendor/github.com/mattermost/mattermost-server/v5/
+ENTERPRISE_HASH ?= $(shell cat enterprise_hash)
 TESTFLAGS = -mod=vendor -timeout 30m -race -v
-
 LDFLAGS += -X "github.com/mattermost/mmctl/commands.BuildHash=$(BUILD_HASH)"
+BUILD_TAGS =
 
 .PHONY: all
 all: build
@@ -14,8 +17,16 @@ all: build
 -include config.override.mk
 include config.mk
 
-ifneq ($(wildcard ${MM_SERVER_PATH}/../enterprise/.*),)
-	TESTFLAGS += -ldflags '-X "github.com/mattermost/mmctl/commands.EnableEnterpriseTests=true"'
+# Prepares the enterprise build if exists. The IGNORE stuff is a hack to get the Makefile to execute the commands outside a target
+ifneq ($(wildcard ${ENTERPRISE_DIR}/.*),)
+	TESTFLAGS += -ldflags '-X "github.com/mattermost/mmctl/commands.EnableEnterpriseTests=true" -X "github.com/mattermost/mattermost-server/v5/model.BuildEnterpriseReady=true"'
+	BUILD_TAGS +=enterprise
+	IGNORE:=$(shell echo Enterprise build selected, preparing)
+	IGNORE:=$(shell rm -rf $(VENDOR_MM_SERVER_DIR)/enterprise)
+	IGNORE:=$(shell cp -R $(ENTERPRISE_DIR) $(VENDOR_MM_SERVER_DIR))
+	IGNORE:=$(shell git -C $(VENDOR_MM_SERVER_DIR)/enterprise checkout $(ENTERPRISE_HASH) --quiet)
+	IGNORE:=$(shell rm -f $(VENDOR_MM_SERVER_DIR)/imports/imports.go)
+	IGNORE:=$(shell cp $(VENDOR_MM_SERVER_DIR)/enterprise/imports/imports.go $(VENDOR_MM_SERVER_DIR)/imports/)
 endif
 
 .PHONY: build
@@ -90,21 +101,21 @@ test: test-unit
 .PHONY: test-unit
 test-unit:
 	@echo Running unit tests
-	$(GO) test $(TESTFLAGS) -tags unit $(GO_PACKAGES)
+	$(GO) test $(TESTFLAGS) -tags 'unit $(BUILD_TAGS)' $(GO_PACKAGES)
 
 .PHONY: test-e2e
 test-e2e:
 	@echo Running e2e tests
-	MM_SERVER_PATH=${MM_SERVER_PATH} $(GO) test $(TESTFLAGS) -tags e2e $(GO_PACKAGES)
+	MM_SERVER_PATH=${MM_SERVER_PATH} $(GO) test $(TESTFLAGS) -tags 'e2e $(BUILD_TAGS)' $(GO_PACKAGES)
 
 .PHONY: test-all
 test-all:
 	@echo Running all tests
-	MM_SERVER_PATH=${MM_SERVER_PATH} $(GO) test $(TESTFLAGS) -tags 'unit e2e' $(GO_PACKAGES)
+	MM_SERVER_PATH=${MM_SERVER_PATH} $(GO) test $(TESTFLAGS) -tags 'unit e2e $(BUILD_TAGS)' $(GO_PACKAGES)
 
 .PHONY: coverage
 coverage:
-	MM_SERVER_PATH=${MM_SERVER_PATH} $(GO) test $(TESTFLAGS) -tags 'unit e2e' -coverprofile=coverage.txt ./...
+	MM_SERVER_PATH=${MM_SERVER_PATH} $(GO) test $(TESTFLAGS) -tags 'unit e2e $(BUILD_TAGS)' -coverprofile=coverage.txt ./...
 	$(GO) tool cover -html=coverage.txt
 
 .PHONY: check
